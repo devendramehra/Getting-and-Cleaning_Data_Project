@@ -16,7 +16,8 @@ y_train$ID <- as.numeric(rownames(y_train))
 train <- merge(subject_train, y_train, all=TRUE)
 # merge train and X_train
 train <- merge(train, X_train, all=TRUE)
-# read subject training data
+
+# read subject testing data
 subject_test = read.table("UCI HAR Dataset/test/subject_test.txt", col.names=c("subject_id"))
 # assign row number as the values of ID column
 subject_test$ID <- as.numeric(rownames(subject_test))
@@ -33,16 +34,24 @@ y_test$ID <- as.numeric(rownames(y_test))
 test <- merge(subject_test, y_test, all=TRUE)
 # merge test and X_test
 test <- merge(test, X_test, all=TRUE)
+
+
 #combine train and test
 data1 <- rbind(train, test)
+
+
 #Step 2: "Extracts only the measurements on the mean and standard deviation for each measurement."
 features = read.table("UCI HAR Dataset/features.txt", col.names=c("feature_id", "feature_label"),) #561
 #Extracts only the measurements on the mean and standard deviation for each measurement.
 selected_features <- features[grepl("mean\\(\\)", features$feature_label) | grepl("std\\(\\)", features$feature_label), ]
 data2 <- data1[, c(c(1, 2, 3), selected_features$feature_id + 3) ]
+
+
 #Step 3: "Uses descriptive activity names to name the activities in the data set."
 activity_labels = read.table("UCI HAR Dataset/activity_labels.txt", col.names=c("activity_id", "activity_label"),) #
 data3 = merge(data2, activity_labels)
+
+
 #Step 4: "Appropriately labels the data set with descriptive activity names."
 selected_features$feature_label = gsub("\\(\\)", "", selected_features$feature_label)
 selected_features$feature_label = gsub("-", ".", selected_features$feature_label)
@@ -50,6 +59,8 @@ for (i in 1:length(selected_features$feature_label)) {
 colnames(data3)[i + 3] <- selected_features$feature_label[i]
 }
 data4 = data3
+
+
 #Step 5: "Creates a second, independent tidy data set with the average of each variable for each activity and each subject."
 drops <- c("ID","activity_label")
 data5 <- data4[,!(names(data4) %in% drops)]
@@ -58,17 +69,3 @@ drops <- c("subject","activity")
 aggdata <- aggdata[,!(names(aggdata) %in% drops)]
 aggdata = merge(aggdata, activity_labels)
 write.csv(file="submit.csv", x=aggdata)
-
-    Status
-    API
-    Training
-    Shop
-    Blog
-    About
-
-    © 2014 GitHub, Inc.
-    Terms
-    Privacy
-    Security
-    Contact
-
